@@ -3,7 +3,7 @@
  * Plugin Name: Growin Stock Sync
  * Plugin URI:  https://hanfjack.de/
  * Description: Hält den Warenbestand von Grow-In-Produkten aktuell, indem die B2B-Preisliste mehrmals täglich aus dem Growin-Kundenbereich abgerufen und per Artikelnummer mit den WooCommerce-Produkten abgeglichen wird. Führt zusätzlich einen vollständigen Katalog aller Growin-Artikelnummern für künftige Produktanlagen.
- * Version:     1.2.0
+ * Version:     1.2.1
  * Author:      hanfjack.de
  * Text Domain: growin-stock-sync
  * Domain Path: /languages
@@ -17,7 +17,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'GSS_VERSION', '1.2.0' );
+define( 'GSS_VERSION', '1.2.1' );
 define( 'GSS_FILE', __FILE__ );
 define( 'GSS_PATH', plugin_dir_path( __FILE__ ) );
 define( 'GSS_URL', plugin_dir_url( __FILE__ ) );

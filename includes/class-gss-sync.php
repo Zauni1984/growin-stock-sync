@@ -142,6 +142,9 @@ class GSS_Sync {
 	/**
 	 * Sucht zu den Artikelnummern die passenden Produkte und Varianten.
 	 *
+	 * Verglichen wird ausschließlich die Growin-Artikelnummer (mit optionalem
+	 * Präfix) gegen die SKU. EAN, Name oder andere Felder spielen keine Rolle.
+	 *
 	 * @param array $rows Geparste Zeilen.
 	 * @return array<string,array{product_id:int,via:string}>
 	 */
@@ -192,60 +195,6 @@ class GSS_Sync {
 					'product_id' => (int) $entry['product_id'],
 					'via'        => 'sku',
 					'sku'        => $sku,
-				);
-			}
-		}
-
-		if ( 'yes' !== $settings['match_ean'] ) {
-			return $matches;
-		}
-
-		// Rest über die EAN versuchen.
-		$ean_to_article = array();
-
-		foreach ( $rows as $article_no => $row ) {
-			if ( isset( $matches[ $article_no ] ) || '' === $row['ean'] ) {
-				continue;
-			}
-
-			$ean_to_article[ $row['ean'] ] = $article_no;
-		}
-
-		if ( ! $ean_to_article ) {
-			return $matches;
-		}
-
-		$eans = array_keys( $ean_to_article );
-
-		foreach ( array_chunk( $eans, 500 ) as $chunk ) {
-			$placeholders = implode( ',', array_fill( 0, count( $chunk ), '%s' ) );
-
-			$sql = "SELECT pm.meta_value AS ean, pm.post_id AS product_id
-				FROM {$wpdb->postmeta} pm
-				INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
-				WHERE pm.meta_key IN ('_ts_gtin','_global_unique_id','_woosea_ean')
-				AND pm.meta_value IN ({$placeholders})
-				AND p.post_type IN ('product','product_variation')
-				AND p.post_status NOT IN ('trash','auto-draft')";
-
-			$found = $wpdb->get_results( $wpdb->prepare( $sql, $chunk ), ARRAY_A ); // phpcs:ignore WordPress.DB
-
-			foreach ( (array) $found as $entry ) {
-				$ean = (string) $entry['ean'];
-
-				if ( ! isset( $ean_to_article[ $ean ] ) ) {
-					continue;
-				}
-
-				$article_no = $ean_to_article[ $ean ];
-
-				if ( isset( $matches[ $article_no ] ) ) {
-					continue;
-				}
-
-				$matches[ $article_no ] = array(
-					'product_id' => (int) $entry['product_id'],
-					'via'        => 'ean',
 				);
 			}
 		}

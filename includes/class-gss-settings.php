@@ -51,7 +51,6 @@ class GSS_Settings {
 			'cron_interval'      => 'gss_six_hours',
 
 			// Zuordnung.
-			'match_ean'          => 'yes',
 			'sku_prefix'         => '',
 
 			// Vorrang gegenüber anderen Lieferanten-Syncs.
@@ -215,7 +214,7 @@ class GSS_Settings {
 		 */
 		$from_form = isset( $input['form'] ) && 'settings' === $input['form'];
 
-		foreach ( array( 'match_ean', 'set_quantities', 'store_dealer_price', 'store_weight', 'dry_run' ) as $key ) {
+		foreach ( array( 'set_quantities', 'store_dealer_price', 'store_weight', 'dry_run' ) as $key ) {
 			if ( isset( $input[ $key ] ) ) {
 				$clean[ $key ] = ( 'yes' === $input[ $key ] ) ? 'yes' : 'no';
 			} elseif ( $from_form ) {

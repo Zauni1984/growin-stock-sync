@@ -101,12 +101,11 @@ Protokoll erscheint nach jedem Lauf, wie viele Produkte deswegen übersprungen w
 
 ## Zuordnung zu den Produkten
 
-Zuerst über die **Artikelnummer gegen die SKU** (Produkte und Varianten). Wer im Shop
-ein Präfix verwendet, trägt es in den Einstellungen ein.
+Ausschließlich über die **Artikelnummer gegen die SKU** (Produkte und Varianten). Wer
+im Shop ein Präfix verwendet, trägt es in den Einstellungen ein.
 
-Danach optional über die **EAN**, geprüft werden die Felder `_ts_gtin`,
-`_global_unique_id` und `_woosea_ean`. Das greift nur für Artikel, die über die SKU
-nicht gefunden wurden. In der Growin-Liste hat gut ein Fünftel der Artikel eine EAN.
+Die EAN oder andere Felder werden **nie** zur Zuordnung verwendet. Ein Artikel, dessen
+Nummer nicht als SKU im Shop steht, wird nicht angefasst.
 
 Produkte mit dem Häkchen *Growin-Abgleich aussetzen* (Produkt → Lagerbestand) werden
 nie verändert.

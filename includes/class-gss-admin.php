@@ -481,8 +481,7 @@ class GSS_Admin {
 		echo '<p class="description">' . esc_html__( 'Erkannt wird die Bloomtech-Hoheit an den Produktfeldern des Bloomtech-Plugins und an dessen Artikelkatalog. Ist der Bloomtech-Abgleich für ein Produkt ausdrücklich ausgesetzt, darf Growin übernehmen.', 'growin-stock-sync' ) . '</p>';
 		echo '</td></tr>';
 
-		$this->checkbox( 'match_ean', __( 'Zusätzlich über die EAN zuordnen, wenn die Artikelnummer nicht als SKU vorkommt', 'growin-stock-sync' ), $s['match_ean'] );
-		$this->text_field( 'sku_prefix', __( 'Präfix vor der Artikelnummer', 'growin-stock-sync' ), $s['sku_prefix'], __( 'Nur nötig, wenn die SKUs im Shop z. B. als GI-101478 angelegt sind.', 'growin-stock-sync' ) );
+		$this->text_field( 'sku_prefix', __( 'Präfix vor der Artikelnummer', 'growin-stock-sync' ), $s['sku_prefix'], __( 'Nur nötig, wenn die SKUs im Shop z. B. als GI-101478 angelegt sind. Zugeordnet wird ausschließlich über Artikelnummer = SKU, nie über die EAN.', 'growin-stock-sync' ) );
 
 		echo '</tbody></table>';
 
