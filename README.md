@@ -86,17 +86,15 @@ manuellen Upload.
 Produkte, die der Bloomtech-Abgleich betreut, fasst dieses Plugin nicht an. So können
 beide Lieferanten-Syncs nebeneinander laufen, ohne sich gegenseitig zu überschreiben.
 
-Erkannt wird die Bloomtech-Hoheit über zwei voneinander unabhängige Wege:
-
-1. Das Produkt trägt Felder des Bloomtech-Plugins (`_bloomtech_…`).
-2. Die SKU des Produkts steht im Artikelkatalog des Bloomtech-Plugins. Dessen Tabelle
-   wird beim ersten Lauf automatisch gesucht, es muss nichts eingetragen werden.
+Erkannt wird die Bloomtech-Hoheit ausschließlich über die Artikelnummer: Die SKU des
+Produkts steht im Artikelkatalog des Bloomtech-Plugins (Tabelle `…_bloomtech_articles`,
+Spalte `artnr`). Die Tabelle wird automatisch gesucht, es muss nichts eingetragen werden.
 
 Ist der Bloomtech-Abgleich für ein einzelnes Produkt ausdrücklich ausgesetzt
 (`_bloomtech_exclude` = yes), darf Growin dieses Produkt übernehmen.
 
 Auf dem Reiter *Einstellungen* steht unter *Vorrang*, was konkret erkannt wurde, etwa
-die gefundene Katalogtabelle und die Zahl der Produkte mit Bloomtech-Feldern. Im
+die gefundene Katalogtabelle und die Zahl der vom Bloomtech-Abgleich ausgenommenen Produkte. Im
 Protokoll erscheint nach jedem Lauf, wie viele Produkte deswegen übersprungen wurden.
 
 ## Zuordnung zu den Produkten

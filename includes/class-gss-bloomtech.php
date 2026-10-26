@@ -3,9 +3,10 @@
  * Erkennt, welche Produkte bereits vom Bloomtech-Sync betreut werden.
  *
  * Bloomtech hat immer Vorrang: Produkte, die dort gepflegt werden, fasst der
- * Growin-Abgleich nicht an. Erkannt wird das über zwei Wege, die unabhängig
- * voneinander funktionieren, damit die Erkennung auch dann greift, wenn das
- * Bloomtech-Plugin einmal umgebaut wird.
+ * Growin-Abgleich nicht an. Erkannt wird das ausschließlich über die
+ * Artikelnummer: Steht die SKU eines Produkts im Bloomtech-Katalog, gehört es
+ * Bloomtech. Einzige Ausnahme ist das Bloomtech-Häkchen „Eigenbestand“
+ * (_bloomtech_exclude = yes), dann darf Growin übernehmen.
  *
  * @package GrowinStockSync
  */
@@ -25,7 +26,7 @@ class GSS_Bloomtech {
 	public static function catalog_table() {
 		global $wpdb;
 
-		$cached = get_transient( 'gss_bloomtech_table' );
+		$cached = get_transient( 'gss_bloomtech_table_v2' );
 
 		if ( false !== $cached ) {
 			return (string) $cached;
@@ -43,7 +44,7 @@ class GSS_Bloomtech {
 			}
 		}
 
-		set_transient( 'gss_bloomtech_table', $found, HOUR_IN_SECONDS );
+		set_transient( 'gss_bloomtech_table_v2', $found, HOUR_IN_SECONDS );
 
 		return $found;
 	}
@@ -55,7 +56,7 @@ class GSS_Bloomtech {
 	 * @return string
 	 */
 	public static function article_column( array $columns ) {
-		$candidates = array( 'article_no', 'artikelnummer', 'artikel_nr', 'sku', 'article_number', 'articleno' );
+		$candidates = array( 'artnr', 'article_no', 'artikelnummer', 'artikel_nr', 'sku', 'article_number', 'articleno' );
 
 		foreach ( $candidates as $candidate ) {
 			foreach ( $columns as $column ) {
@@ -87,38 +88,26 @@ class GSS_Bloomtech {
 		$product_ids = array_map( 'absint', $product_ids );
 		$product_ids = array_values( array_unique( array_filter( $product_ids ) ) );
 
-		// Weg 1: Produktfelder des Bloomtech-Plugins.
+		// Vom Bloomtech-Abgleich ausdrücklich ausgenommene Produkte darf Growin übernehmen.
 		$excluded_from_bloomtech = array();
 
 		foreach ( array_chunk( $product_ids, 500 ) as $chunk ) {
 			$placeholders = implode( ',', array_fill( 0, count( $chunk ), '%d' ) );
 
-			$sql = "SELECT post_id, meta_key, meta_value
+			$sql = "SELECT post_id
 				FROM {$wpdb->postmeta}
 				WHERE post_id IN ({$placeholders})
-				AND meta_key LIKE '\\_bloomtech\\_%'";
+				AND meta_key = '_bloomtech_exclude'
+				AND meta_value = 'yes'";
 
-			$rows = $wpdb->get_results( $wpdb->prepare( $sql, $chunk ), ARRAY_A ); // phpcs:ignore WordPress.DB
+			$rows = $wpdb->get_col( $wpdb->prepare( $sql, $chunk ) ); // phpcs:ignore WordPress.DB
 
-			foreach ( (array) $rows as $row ) {
-				$post_id = (int) $row['post_id'];
-
-				// Ist der Bloomtech-Sync für dieses Produkt bewusst abgeschaltet,
-				// darf Growin übernehmen.
-				if ( '_bloomtech_exclude' === $row['meta_key'] && 'yes' === $row['meta_value'] ) {
-					$excluded_from_bloomtech[ $post_id ] = true;
-					continue;
-				}
-
-				$owned[ $post_id ] = true;
+			foreach ( (array) $rows as $post_id ) {
+				$excluded_from_bloomtech[ (int) $post_id ] = true;
 			}
 		}
 
-		foreach ( array_keys( $excluded_from_bloomtech ) as $post_id ) {
-			unset( $owned[ $post_id ] );
-		}
-
-		// Weg 2: Artikelnummer steht im Bloomtech-Katalog.
+		// Bloomtech-Ware: Die SKU steht im Bloomtech-Katalog.
 		$table = self::catalog_table();
 
 		if ( '' === $table || ! $skus ) {
@@ -194,12 +183,12 @@ class GSS_Bloomtech {
 		}
 
 		$meta_count = (int) $wpdb->get_var(
-			"SELECT COUNT(DISTINCT post_id) FROM {$wpdb->postmeta} WHERE meta_key LIKE '\\_bloomtech\\_%'" // phpcs:ignore WordPress.DB
+			"SELECT COUNT(DISTINCT post_id) FROM {$wpdb->postmeta} WHERE meta_key = '_bloomtech_exclude' AND meta_value = 'yes'" // phpcs:ignore WordPress.DB
 		);
 
 		$parts[] = sprintf(
 			/* translators: %s: number of products */
-			__( '%s Produkte tragen Bloomtech-Felder.', 'growin-stock-sync' ),
+			__( '%s Produkte sind vom Bloomtech-Abgleich ausgenommen und dürfen von Growin übernommen werden.', 'growin-stock-sync' ),
 			number_format_i18n( $meta_count )
 		);
 
@@ -212,6 +201,6 @@ class GSS_Bloomtech {
 	 * @return void
 	 */
 	public static function flush() {
-		delete_transient( 'gss_bloomtech_table' );
+		delete_transient( 'gss_bloomtech_table_v2' );
 	}
 }
